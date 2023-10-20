@@ -1,40 +1,55 @@
 <script setup>
-import { ref } from 'vue'
+import {onMounted} from "vue"
+import * as d3 from "d3"
 
-defineProps({
-  msg: String,
+
+onMounted(()=>{
+  var ancho = document.querySelector("div#app").clientWidth
+  var alto = 600
+  var svg = d3.select("svg#viz")
+  
+  svg.attr("width", ancho)
+    .attr("height", 600)
+
+  d3.csv("/CaltechExoplanetArchive.csv")
+    .then((datos)=>{
+      datos.forEach((d)=>{
+        d.disc_year = +d.disc_year
+        d.pl_masse= +d.pl_masse
+      })
+      console.log(datos)
+      var escalaY = d3.scaleLinear()
+        .domain(d3.extent(datos.map(d=>d.disc_year)))
+        .range([0, alto])
+      
+      var escalaX = d3.scaleLinear()
+        .domain(d3.extent(datos.map(d=>d.sy_dist)))
+        .range([0, ancho])
+      
+      console.log(escalaY(1989))
+
+      svg.selectAll("circulos")
+        .data(datos)
+        .enter()
+        .append("circle")
+        .attr("cy", d=>escalaY(d.disc_year))
+        .attr("cx", d=>escalaX(d.sy_dist))
+        .attr("r", d=> Math.pow(d.pl_masse, .5)/ 10)
+        .style("fill", "red")
+        .style("fill-opacity", ".5")
+
+    })
+
 })
-
-const count = ref(0)
 </script>
 
 <template>
-  <h1>{{ msg }} Ejemplo</h1>
+<svg id="viz">
 
-  <div class="card">
-    <button type="button" @click="count = count +1" :style="{background: `rgb(${10 *count},0,0)`}">count is {{ count }}</button>
-    <p>
-      Edit
-      <code>components/HelloWorld.vue</code> to test HMR
-    </p>
-  </div>
-
-  <p>
-    Check out
-    <a href="https://vuejs.org/guide/quick-start.html#local" target="_blank"
-      >create-vue</a
-    >, the official Vue + Vite starter
-  </p>
-  <p>
-    Install
-    <a href="https://github.com/vuejs/language-tools" target="_blank">Volar</a>
-    in your IDE for a better DX
-  </p>
-  <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
+</svg>
 </template>
 
 <style scoped>
-.read-the-docs {
-  color: #888;
+svg#viz{
 }
 </style>
