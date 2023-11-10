@@ -1,11 +1,15 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import ScatterPlot from './components/ScatterPlot.vue'
+import Mapa from './components/Mapa.vue'
+
 console.log(" Hola mundo")
 </script>
 
 <template>
 
-  <HelloWorld msg="Vite + Vue 1 " />
+  <ScatterPlot />
+  <p>ejemplo de mapa</p>
+  <Mapa></Mapa>
 
 </template>
 
