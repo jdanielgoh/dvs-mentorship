@@ -11,18 +11,17 @@ const svg = ref(),
   grupo_burbujas = ref(),
   burbujas = ref(),
   burbujas_suspected = ref(),
-  burbujas_RTD_positive = ref(),
-  burbujas_RTD_suspect = ref();
+  burbujas_RDT_positive = ref(),
+  burbujas_RDT_suspect = ref();
 // base de datos
 const datos = ref(),
   datos_filtrados = ref(),
-  anio_seleccionado = ref(2021);
+  anio_seleccionado = ref(2014);
 
 // Elementos para dimensiones y fuerzas
 const simulacion = ref(d3.forceSimulation());
 
 onMounted(() => {
-  console.log(d3.range(2001, 2022));
   svg.value = d3.select("svg#burbujas");
   grupo_burbujas.value = svg.value.select("g.grupo-burbujas");
 
@@ -31,7 +30,7 @@ onMounted(() => {
   d3.csv("/diagnosticos_malaria.csv").then((data) => {
     // Convertimos valores string a numéricos
     data.forEach((d) => {
-      d.RTD_positive = +d.RDT_positive;
+      d.RDT_positive = +d.RDT_positive;
       d.RDT_suspect = +d.RDT_suspect;
       d.suspected = +d.suspected;
     });
@@ -83,17 +82,18 @@ function reiniciandoSimulacion() {
     .force("x", d3.forceX().x(ancho.value / 2))
     .force("y", d3.forceY().y(alto.value / 2))
     .force("center", d3.forceCenter(ancho.value / 2, alto.value / 2))
+    
+    .force("charge", d3.forceManyBody())
+    .on("tick", () => {
+      burbujas.value.attr("transform", (d) => `translate(${d.x},${d.y})`);
+    })
+    .alpha(1)
     .force(
       "collide",
       d3
         .forceCollide()
         .radius((d) => 5 + escala_radio.value * Math.sqrt(d.suspected))
     )
-    .force("charge", d3.forceManyBody())
-    .on("tick", () => {
-      burbujas.value.attr("transform", (d) => `translate(${d.x},${d.y})`);
-    })
-    .alpha(1)
     .restart();
 }
 /**
@@ -107,7 +107,8 @@ function creaBurbujas() {
     .enter()
     .append("g");
   burbujas_suspected.value = burbujas.value.append("circle").attr("class", "suspected");
-  burbujas_RTD_positive.value = burbujas.value.append("circle").attr("class", "RTD_positive");
+  burbujas_RDT_positive.value = burbujas.value.append("circle").attr("class", "rdt_positive");
+  burbujas_RDT_suspect.value = burbujas.value.append("circle").attr("class", "rdt_suspect");
 
 }
 /**
@@ -120,13 +121,28 @@ function dibujaBurbujas() {
 
   burbujas_suspected.value = burbujas.value
     .selectAll("circle.suspected")
+    .data(d=>[d])
+.transition().duration(500)
     .attr("r", (d) => escala_radio.value * Math.sqrt(d.suspected))
-    .attr("fill-opacity", ".3");
+    .attr("fill-opacity", ".4")
+    .attr("fill","green");
 
-    burbujas_RTD_positive.value = burbujas.value
-      .selectAll("circle.RTD_positive")
-      .attr("r", (d) => escala_radio.value * Math.sqrt(d.RDT_positive))
-      .attr("fill-opacity", ".3");
+
+    burbujas_RDT_positive.value = burbujas.value
+      .selectAll("circle.rdt_positive")
+      .data(d=>[d])
+      .transition().duration(500)
+      .attr("r", (d) => {return escala_radio.value * Math.sqrt(d.RDT_positive)})
+      .attr("fill-opacity", ".4")
+      .attr("fill","red");
+
+    burbujas_RDT_suspect.value = burbujas.value
+      .selectAll("circle.rdt_suspect")
+      .data(d=>[d])
+      .transition().duration(500)
+      .attr("r", (d) => {console.log(d.RDT_positive); return escala_radio.value * Math.sqrt(d.RDT_suspect)})
+      .attr("fill-opacity", ".4")
+      .attr("fill","yellow");
 
 }
 
