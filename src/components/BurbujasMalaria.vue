@@ -21,6 +21,16 @@ const datos = ref(),
 // Elementos para dimensiones y fuerzas
 const simulacion = ref(d3.forceSimulation());
 
+const diccionario_color = {
+  "Africa": "red",
+  "America": "orange",
+  "South-East Asia": "cyan" ,
+  "Europe":"blue",
+  "Eastern Mediterranean":"#e3e4f0",
+  "Western Pacific": "rgb(100,40,160)"
+
+}
+
 onMounted(() => {
   svg.value = d3.select("svg#burbujas");
   grupo_burbujas.value = svg.value.select("g.grupo-burbujas");
@@ -40,6 +50,7 @@ onMounted(() => {
     datos_filtrados.value = data.filter(
       (d) => d.Year == anio_seleccionado.value
     );
+    console.log(datos_filtrados.value)
 
     generaEscalas();
     reiniciandoSimulacion();
@@ -86,6 +97,18 @@ function reiniciandoSimulacion() {
     .force("charge", d3.forceManyBody())
     .on("tick", () => {
       burbujas.value.attr("transform", (d) => `translate(${d.x},${d.y})`);
+      burbujas.value.selectAll(".rdt_positive")
+      .attr("transform", (d) => {
+        let angulo = .5 *Math.PI;
+        let rad = escala_radio.value * (Math.sqrt(d.suspected) - Math.sqrt(d.RDT_positive))
+        return `translate(${rad * Math.cos(angulo)},${rad * Math.sin(angulo)})`
+      })
+      burbujas.value.selectAll(".rdt_suspect")
+      .attr("transform", (d) => {
+        let angulo = .5 *Math.PI;
+        let rad = escala_radio.value * (Math.sqrt(d.suspected) - Math.sqrt(d.RDT_suspect))
+        return `translate(${rad * Math.cos(angulo)},${rad * Math.sin(angulo)})`
+      })
     })
     .alpha(1)
     .force(
@@ -125,7 +148,7 @@ function dibujaBurbujas() {
 .transition().duration(500)
     .attr("r", (d) => escala_radio.value * Math.sqrt(d.suspected))
     .attr("fill-opacity", ".4")
-    .attr("fill","green");
+    .attr("fill",d=>diccionario_color[d.Region]);
 
 
     burbujas_RDT_positive.value = burbujas.value
@@ -134,15 +157,15 @@ function dibujaBurbujas() {
       .transition().duration(500)
       .attr("r", (d) => {return escala_radio.value * Math.sqrt(d.RDT_positive)})
       .attr("fill-opacity", ".4")
-      .attr("fill","red");
+      .attr("fill",d=>diccionario_color[d.Region]);
 
     burbujas_RDT_suspect.value = burbujas.value
       .selectAll("circle.rdt_suspect")
       .data(d=>[d])
       .transition().duration(500)
-      .attr("r", (d) => {console.log(d.RDT_positive); return escala_radio.value * Math.sqrt(d.RDT_suspect)})
+      .attr("r", (d) =>  escala_radio.value * Math.sqrt(d.RDT_suspect))
       .attr("fill-opacity", ".4")
-      .attr("fill","yellow");
+      .attr("fill",d=>diccionario_color[d.Region]);
 
 }
 

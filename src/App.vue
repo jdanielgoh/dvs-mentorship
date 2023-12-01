@@ -15,6 +15,7 @@ console.log(" Hola mundo")
   <MapaLeaflet></MapaLeaflet>
 
 -->
+<h1>Título</h1>
 <BurbujasMalaria></BurbujasMalaria>
 
 </template>
