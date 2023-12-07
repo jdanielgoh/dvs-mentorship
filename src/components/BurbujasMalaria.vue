@@ -24,7 +24,7 @@ const simulacion = ref(d3.forceSimulation());
 const diccionario_color = {
   "Africa": "red",
   "America": "orange",
-  "South-East Asia": "cyan" ,
+  "South-East Asia": "green" ,
   "Europe":"blue",
   "Eastern Mediterranean":"#e3e4f0",
   "Western Pacific": "rgb(100,40,160)"
