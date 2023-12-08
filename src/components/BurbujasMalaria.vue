@@ -133,6 +133,13 @@ function creaBurbujas() {
   burbujas_RDT_positive.value = burbujas.value.append("circle").attr("class", "rdt_positive");
   burbujas_RDT_suspect.value = burbujas.value.append("circle").attr("class", "rdt_suspect");
 
+/*add text*/
+  burbujas.value.append("text")
+    .attr("class", "label")
+    .text(d => d.Region) // Assuming 'Region' is the field you want to label
+    .attr("text-anchor", "middle")
+    .attr("dy", ".35em"); // Vertically center text
+
 }
 /**
  * Paso 4 (Se puede ejecutar varias veces):
@@ -166,6 +173,17 @@ function dibujaBurbujas() {
       .attr("r", (d) =>  escala_radio.value * Math.sqrt(d.RDT_suspect))
       .attr("fill-opacity", ".4")
       .attr("fill",d=>diccionario_color[d.Region]);
+
+      /*add text*/
+  // Update text labels
+  burbujas.value.selectAll("text.label")
+    .data(d => [d])
+    .transition().duration(500)
+    .attr("x", d => d.x) // Position the label at the center of the bubble
+    .attr("y", d => d.y)
+    .style("font-size", d => Math.min(2 * escala_radio.value * Math.sqrt(d.suspected), 16) + "px") // Adjust font size based on bubble size
+    .text(d => d.Region); // Update text if necessary
+
 
 }
 
