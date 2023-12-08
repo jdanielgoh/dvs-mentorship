@@ -22,12 +22,12 @@ const datos = ref(),
 const simulacion = ref(d3.forceSimulation());
 
 const diccionario_color = {
-  "Africa": "#8c00ff",
-  "America": "#8c00ff",
-  "South-East Asia": "#fcba03" ,
-  "Europe":"blue",
-  "Eastern Mediterranean":"#e3e4f0",
-  "Western Pacific": "rgb(100,40,160)"
+  "Africa": "#004f5f",
+  "America": "#766aaf",
+  "South-East Asia": "#38c7a6" ,
+  "Europe":"#36e9fe",
+  "Eastern Mediterranean":"#f9f871",
+  "Western Pacific": "rgb(255,0,0)"
 
 }
 
