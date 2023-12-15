@@ -231,9 +231,36 @@ watch(anio_seleccionado, () => {
   reiniciandoSimulacion();
   dibujaBurbujas();
 });
+
+
+
+// Calculate radius function
+function calculateRadius(value) {
+  // Convert the value to a radius using your existing scale
+  return escala_radio.value * Math.sqrt(value);
+}
+
+// Size legend data
+const sizeLegend = computed(() => [
+  { label: '1000', radius: calculateRadius(1000) },
+  { label: '500', radius: calculateRadius(500) },
+  // Add more sizes as needed
+]);
+
+
+// ... rest of your existing code ...
+
 </script>
 
 <template>
+   <div class="legend-size">
+    <p v-for="size in sizeLegend" :key="size.label">
+      <svg width="30" height="30">
+        <circle :cx="15" :cy="15" :r="size.radius"></circle>
+      </svg>
+      <span>{{ size.label }}</span>
+    </p>
+  </div>
   <div>
     <select name="years" id="years" v-model="anio_seleccionado">
       <option :value="year" v-for="year in d3.range(2001, 2022)" :key="year">
@@ -264,6 +291,11 @@ watch(anio_seleccionado, () => {
     </p>
 
   </div>
+
+  
+ 
+
+
 </template>
 <style>
 .contenedor-svg-burbujas {
@@ -297,5 +329,14 @@ watch(anio_seleccionado, () => {
 svg {
   position: relative;
   z-index: 1;
+}
+.legend-size p {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.legend-size svg {
+  margin-right: 10px;
 }
 </style>
