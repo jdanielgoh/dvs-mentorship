@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import * as d3 from "d3";
 
 const ancho = ref(0);
@@ -76,7 +76,7 @@ function generaEscalas() {
   ancho.value = document.querySelector(
     "div.contenedor-svg-burbujas"
   ).clientWidth;
-  alto.value = ancho.value;
+  alto.value = ancho.value * 0.9;
 
   escala_radio.value = 0.000015 * ancho.value;
 }
@@ -114,8 +114,7 @@ function reiniciandoSimulacion() {
         return `translate(${rad * Math.cos(angulo)},${rad * Math.sin(angulo)})`;
       });
 
-      burbujas.value
-      .selectAll("text.label")
+      burbujas.value.selectAll("text.label");
     })
     .alpha(1)
     .force(
@@ -141,6 +140,9 @@ function creaBurbujas() {
       posicion_x.value = e.layerX - 100 + "px";
       posicion_y.value = e.layerY - 130 + "px";
       html_tooltip.value = `
+      <p>Suspected: <b>${d.suspected.toLocaleString("en-US")} </b></p>
+      <p>RDT_suspect: <b>${d.RDT_suspect.toLocaleString("en-US")} </b></p>
+
       <p>RDT positive: <b>${d.RDT_positive.toLocaleString("en-US")} </b></p>
       `;
     })
@@ -232,8 +234,6 @@ watch(anio_seleccionado, () => {
   dibujaBurbujas();
 });
 
-
-
 // Calculate radius function
 function calculateRadius(value) {
   // Convert the value to a radius using your existing scale
@@ -242,25 +242,16 @@ function calculateRadius(value) {
 
 // Size legend data
 const sizeLegend = computed(() => [
-  { label: '1000', radius: calculateRadius(1000) },
-  { label: '500', radius: calculateRadius(500) },
+  { label: 200000000, radius: calculateRadius(200000000) },
+  { label: 100000000, radius: calculateRadius(100000000) },
+  { label: 20000000, radius: calculateRadius(20000000) },
   // Add more sizes as needed
 ]);
 
-
 // ... rest of your existing code ...
-
 </script>
 
 <template>
-   <div class="legend-size">
-    <p v-for="size in sizeLegend" :key="size.label">
-      <svg width="30" height="30">
-        <circle :cx="15" :cy="15" :r="size.radius"></circle>
-      </svg>
-      <span>{{ size.label }}</span>
-    </p>
-  </div>
   <div>
     <select name="years" id="years" v-model="anio_seleccionado">
       <option :value="year" v-for="year in d3.range(2001, 2022)" :key="year">
@@ -283,21 +274,78 @@ const sizeLegend = computed(() => [
     </svg>
   </div>
   <div class="nomenclaturas">
-    <p>
-      <span v-for="(clave,i) in  Object.keys(diccionario_color)" :key="i" class="nomenclatura-region"> 
-        <span class="nomenclatura-circulo" :style="{background: diccionario_color[clave]}"></span>
+    <div class="legend-size">
+      <svg :width="35000 * escala_radio" :height="35000 * escala_radio">
+        <circle
+          v-for="size in sizeLegend"
+          :key="size.label"
+          :cx="35000 * escala_radio * 0.5"
+          :cy="35000 * escala_radio * 0.5"
+          :r="size.radius"
+          fill="none"
+          stroke="black"
+        ></circle>
+        <line
+          v-for="size in sizeLegend"
+          :key="size.label"
+          :x1="35000 * escala_radio * 0.5"
+          :y1="35000 * escala_radio * 0.5 - size.radius"
+          :x2="35000 * escala_radio * 0.7"
+          :y2="35000 * escala_radio * 0.5 - size.radius"
+          :r="size.radius"
+          fill="none"
+          stroke="black"
+          stroke-dasharray="3 2"
+        ></line>
+        <text
+          v-for="size in sizeLegend"
+          :key="size.label"
+          :x="35000 * escala_radio * 0.7"
+          :y="35000 * escala_radio * 0.5 - size.radius"
+          :r="size.radius"
+          fill="black"
+          font-size="12"
+        >
+          {{ size.label.toLocaleString("en-US") }}
+        </text>
+      </svg>
+    </div>
+    <div class="nomenclatura-colores">
+      <p>
+      <span
+        v-for="(clave, i) in Object.keys(diccionario_color)"
+        :key="i"
+        class="nomenclatura-region"
+      >
+        <span
+          class="nomenclatura-circulo"
+          :style="{ background: diccionario_color[clave] }"
+        ></span>
         {{ clave }}
       </span>
     </p>
-
+    </div>
+    
   </div>
-
-  
- 
-
-
 </template>
-<style>
+<style lang="scss">
+.nomenclaturas{
+  display: flex;
+  justify-content: center;
+
+  .legend-size{
+    
+  }
+  .nomenclatura-colores{
+    display: flex;
+    p{
+      margin: auto;
+    }
+
+  }
+
+}
+
 .contenedor-svg-burbujas {
   max-width: 700px;
   width: 100%;
@@ -315,14 +363,14 @@ const sizeLegend = computed(() => [
   color: white;
   border-radius: 8px;
 }
-.nomenclatura-circulo{
+.nomenclatura-circulo {
   width: 16px;
   height: 16px;
   display: inline-block;
   border-radius: 50%;
-  transform: translateY(2px)
+  transform: translateY(2px);
 }
-.nomenclatura-region{
+.nomenclatura-region {
   margin: 0 8px;
   display: block;
 }
